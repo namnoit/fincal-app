@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fincal — Loan & Compound Interest Calculator</title>
+<meta name="description" content="Plan loans and grow savings with clear charts. Compare repayment methods, see the real interest rate, and try prepayments — fully offline and private.">
+<link rel="icon" type="image/png" href="ic_launcher-playstore.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Fincal — Loan & Compound Interest Calculator">
+<meta property="og:description" content="Smart, private finance math — right on your phone.">
+<meta property="og:image" content="ic_launcher-playstore.png">
+<meta property="og:url" content="https://namnoit.github.io/fincal-app/">
+<style>
+  :root {
+    --green: #2e8b6a;
+    --green-dark: #25735a;
+    --yellow: #f5c542;
+    --cream: #f5f5ee;
+    --bg: #ffffff;
+    --surface: #f5f5ee;
+    --text: #1f2421;
+    --muted: #5c655f;
+    --border: #e2e2d8;
+    --link: #25735a;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171a;
+      --surface: #1e2125;
+      --text: #e7e9e6;
+      --muted: #a3aaa4;
+      --border: #2c3036;
+      --link: #5dc39c;
+      --green: #4cae88;
+      --green-dark: #3d9876;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    font-size: 17px;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: var(--link); }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+  /* Top bar */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar .inner { display: flex; align-items: center; gap: 12px; padding: 12px 20px; max-width: var(--maxw); margin: 0 auto; }
+  .topbar img { width: 36px; height: 36px; border-radius: 9px; }
+  .topbar .brand { font-weight: 700; font-size: 18px; }
+  .topbar .spacer { flex: 1; }
+  .langbar { display: flex; gap: 6px; }
+  .langbar button {
+    appearance: none; border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); font: inherit; font-size: 13px; font-weight: 600;
+    padding: 6px 13px; border-radius: 999px; cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .langbar button:hover { border-color: var(--green); }
+  .langbar button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; padding: 64px 0 56px; }
+  .hero h1 { font-size: 42px; line-height: 1.12; letter-spacing: -0.02em; margin: 0 0 18px; }
+  .hero p.sub { font-size: 19px; color: var(--muted); margin: 0 0 28px; max-width: 30em; }
+  .hero .shot { display: flex; justify-content: center; }
+  .hero .shot img { width: 280px; border-radius: 28px; box-shadow: 0 18px 50px rgba(0,0,0,0.18); }
+
+  /* Buttons */
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px; border-radius: 14px; font-weight: 600; font-size: 16px;
+    text-decoration: none; border: 1px solid transparent;
+  }
+  .btn .sm { display: block; font-size: 11px; font-weight: 500; opacity: .85; line-height: 1.1; }
+  .btn .lg { display: block; font-size: 16px; line-height: 1.15; }
+  .btn-play { background: var(--green); color: #fff; }
+  .btn-play:hover { background: var(--green-dark); }
+  .btn-appstore { background: var(--surface); color: var(--muted); border-color: var(--border); cursor: default; position: relative; }
+  .btn-appstore .badge {
+    position: absolute; top: -9px; right: -9px;
+    background: var(--yellow); color: #3a2e00; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+  }
+
+  /* Sections */
+  section { padding: 28px 0; }
+  h2.section-title { font-size: 30px; letter-spacing: -0.01em; margin: 8px 0 28px; text-align: center; }
+
+  .feature { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; padding: 40px 0; }
+  .feature:nth-child(even) .ftext { order: 2; }
+  .feature .shot { display: flex; justify-content: center; }
+  .feature .shot img { width: 250px; border-radius: 26px; box-shadow: 0 14px 40px rgba(0,0,0,0.15); }
+  .feature h3 { font-size: 24px; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .feature p { font-size: 18px; color: var(--muted); margin: 0; max-width: 30em; }
+  .feature .num { display: inline-block; font-size: 14px; font-weight: 700; color: var(--green-dark); margin-bottom: 8px; letter-spacing: .04em; }
+
+  /* Highlights */
+  .highlights { background: var(--surface); border-radius: 20px; padding: 36px 32px; margin: 24px 0; }
+  .highlights ul { columns: 2; column-gap: 36px; margin: 0; padding: 0 0 0 20px; }
+  .highlights li { margin: 8px 0; break-inside: avoid; }
+  @media (max-width: 640px) { .highlights ul { columns: 1; } }
+
+  /* FAQ */
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details { border: 1px solid var(--border); border-radius: 12px; margin: 10px 0; background: var(--surface); overflow: hidden; }
+  .faq summary { cursor: pointer; padding: 14px 18px; font-weight: 600; list-style: none; position: relative; padding-right: 44px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--green-dark); }
+  .faq details[open] summary::after { content: "\2212"; }
+  .faq .answer { padding: 0 18px 16px; color: var(--muted); }
+
+  /* Final CTA */
+  .final-cta { text-align: center; padding: 48px 0 8px; }
+  .final-cta h2 { font-size: 28px; margin: 0 0 22px; }
+  .final-cta .cta { justify-content: center; }
+
+  footer.site { margin-top: 40px; padding: 28px 0 56px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; text-align: center; }
+  footer.site a { margin: 0 10px; }
+
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; gap: 28px; padding: 40px 0; text-align: center; }
+    .hero p.sub { margin-left: auto; margin-right: auto; }
+    .hero .cta { justify-content: center; }
+    .hero .shot { order: -1; }
+    .hero .shot img { width: 230px; }
+    .hero h1 { font-size: 33px; }
+    .feature { grid-template-columns: 1fr; gap: 20px; text-align: center; padding: 28px 0; }
+    .feature:nth-child(even) .ftext { order: 0; }
+    .feature p { margin-left: auto; margin-right: auto; }
+    .feature .shot img { width: 220px; }
+    h2.section-title { font-size: 25px; }
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <img src="ic_launcher-playstore.png" alt="Fincal">
+    <span class="brand">Fincal</span>
+    <span class="spacer"></span>
+    <div class="langbar" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="vi">VI</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="ftext">
+      <h1 data-en="Make confident money decisions." data-vi="Tự tin với mọi quyết định tài chính.">Make confident money decisions.</h1>
+      <p class="sub"
+         data-en="Fincal is a free loan and compound-interest calculator that turns your numbers into clear answers and charts — and keeps everything private on your device."
+         data-vi="Fincal là ứng dụng miễn phí tính lãi vay và lãi kép, biến những con số của bạn thành câu trả lời và biểu đồ rõ ràng — và giữ mọi thứ riêng tư ngay trên thiết bị.">Fincal is a free loan and compound-interest calculator that turns your numbers into clear answers and charts — and keeps everything private on your device.</p>
+      <div class="cta">
+        <a class="btn btn-play" href="https://play.google.com/store/apps/details?id=com.namnoit.fincal" target="_blank" rel="noopener">
+          <span>
+            <span class="sm" data-en="GET IT ON" data-vi="TẢI TRÊN">GET IT ON</span>
+            <span class="lg">Google Play</span>
+          </span>
+        </a>
+        <span class="btn btn-appstore" role="button" aria-disabled="true" title="Coming soon">
+          <span class="badge" data-en="Coming soon" data-vi="Sắp có">Coming soon</span>
+          <span>
+            <span class="sm" data-en="DOWNLOAD ON THE" data-vi="TẢI TRÊN">DOWNLOAD ON THE</span>
+            <span class="lg">App Store</span>
+          </span>
+        </span>
+      </div>
+    </div>
+    <div class="shot">
+      <img data-en="release/en/S1.jpg" data-vi="release/vi/S1.jpg" src="release/en/S1.jpg" width="280" height="608"
+           alt="Fincal home screen with the loan and compound calculators">
+    </div>
+  </section>
+
+  <!-- ===================== VALUE PROPS ===================== -->
+  <section>
+    <h2 class="section-title" data-en="Everything you need to plan with confidence"
+        data-vi="Mọi thứ bạn cần để lên kế hoạch tự tin">Everything you need to plan with confidence</h2>
+
+    <div class="feature">
+      <div class="ftext">
+        <span class="num">01</span>
+        <h3 data-en="See the true cost of any loan" data-vi="Thấy chi phí thật của khoản vay">See the true cost of any loan</h3>
+        <p data-en="Compare equal-principal, equal-instalment, and flat-rate loans side by side — and see the real effective rate, so a “low” flat rate can't fool you."
+           data-vi="So sánh trả gốc đều, trả góp đều và lãi phẳng cạnh nhau — và xem lãi suất thực, để một mức lãi phẳng “thấp” không đánh lừa được bạn.">Compare equal-principal, equal-instalment, and flat-rate loans side by side — and see the real effective rate, so a “low” flat rate can't fool you.</p>
+      </div>
+      <div class="shot"><img data-en="release/en/S3.jpg" data-vi="release/vi/S3.jpg" src="release/en/S3.jpg" loading="lazy" width="250" height="543" alt="Loan input with the three repayment methods"></div>
+    </div>
+
+    <div class="feature">
+      <div class="ftext">
+        <span class="num">02</span>
+        <h3 data-en="Plan around real life" data-vi="Lên kế hoạch theo đời thực">Plan around real life</h3>
+        <p data-en="Handle interest rates that change over time, add early repayments, and instantly see how much time and money you save."
+           data-vi="Xử lý lãi suất thay đổi theo thời gian, thêm các khoản trả trước hạn, và thấy ngay bạn tiết kiệm được bao nhiêu thời gian và tiền bạc.">Handle interest rates that change over time, add early repayments, and instantly see how much time and money you save.</p>
+      </div>
+      <div class="shot"><img data-en="release/en/S4.jpg" data-vi="release/vi/S4.jpg" src="release/en/S4.jpg" loading="lazy" width="250" height="543" alt="Loan result with donut and bar charts"></div>
+    </div>
+
+    <div class="feature">
+      <div class="ftext">
+        <span class="num">03</span>
+        <h3 data-en="Watch your savings grow" data-vi="Theo dõi khoản tích lũy lớn dần">Watch your savings grow</h3>
+        <p data-en="Project compound growth with regular contributions and a clear year-by-year breakdown."
+           data-vi="Dự phóng tăng trưởng lãi kép có đóng góp định kỳ kèm bảng chi tiết theo từng năm.">Project compound growth with regular contributions and a clear year-by-year breakdown.</p>
+      </div>
+      <div class="shot"><img data-en="release/en/S2.jpg" data-vi="release/vi/S2.jpg" src="release/en/S2.jpg" loading="lazy" width="250" height="543" alt="Compound interest result with growth chart"></div>
+    </div>
+
+    <div class="feature">
+      <div class="ftext">
+        <span class="num">04</span>
+        <h3 data-en="Keep a record" data-vi="Lưu lại để tra cứu">Keep a record</h3>
+        <p data-en="Every calculation is saved automatically, and you can keep favourite scenarios to revisit anytime."
+           data-vi="Mọi phép tính được lưu tự động, và bạn có thể giữ các kịch bản yêu thích để xem lại bất cứ lúc nào.">Every calculation is saved automatically, and you can keep favourite scenarios to revisit anytime.</p>
+      </div>
+      <div class="shot"><img data-en="release/en/S7.jpg" data-vi="release/vi/S7.jpg" src="release/en/S7.jpg" loading="lazy" width="250" height="543" alt="History and saved scenarios list"></div>
+    </div>
+
+    <div class="feature">
+      <div class="ftext">
+        <span class="num">05</span>
+        <h3 data-en="Private by design" data-vi="Riêng tư từ trong thiết kế">Private by design</h3>
+        <p data-en="Your amounts never leave your phone. No account, no sign-up — works fully offline."
+           data-vi="Các con số của bạn không bao giờ rời điện thoại. Không tài khoản, không đăng ký — chạy hoàn toàn ngoại tuyến.">Your amounts never leave your phone. No account, no sign-up — works fully offline.</p>
+      </div>
+      <div class="shot"><img data-en="release/en/S8.jpg" data-vi="release/vi/S8.jpg" src="release/en/S8.jpg" loading="lazy" width="250" height="543" alt="Dark mode result screen"></div>
+    </div>
+  </section>
+
+  <!-- ===================== HIGHLIGHTS ===================== -->
+  <section>
+    <h2 class="section-title" data-en="Feature highlights" data-vi="Tính năng nổi bật">Feature highlights</h2>
+    <div class="highlights">
+      <ul id="highlights-en">
+        <li>Loan calculator: equal-principal · equal-instalment · flat-rate, with the real effective rate.</li>
+        <li>Changing interest rates and early-repayment planning (shorten the term or lower the payment).</li>
+        <li>Compound interest with regular deposits and a growth chart.</li>
+        <li>Clear donut, bar and growth charts; year-by-year schedules.</li>
+        <li>Automatic history and saved scenarios.</li>
+        <li>Share any result as an image.</li>
+        <li>Light and dark themes; follows your phone's language.</li>
+        <li>100% offline. No account required.</li>
+      </ul>
+      <ul id="highlights-vi" hidden>
+        <li>Máy tính khoản vay: gốc đều · trả góp đều · lãi phẳng, kèm lãi suất thực.</li>
+        <li>Lãi suất thay đổi theo giai đoạn và kế hoạch trả trước hạn (rút ngắn kỳ hạn hoặc giảm tiền trả).</li>
+        <li>Lãi kép có gửi thêm định kỳ và biểu đồ tăng trưởng.</li>
+        <li>Biểu đồ tròn, cột và tăng trưởng rõ ràng; bảng chi tiết theo năm.</li>
+        <li>Tự động lưu lịch sử và kịch bản.</li>
+        <li>Chia sẻ mọi kết quả dưới dạng hình ảnh.</li>
+        <li>Giao diện sáng và tối; theo ngôn ngữ điện thoại của bạn.</li>
+        <li>100% ngoại tuyến. Không cần tài khoản.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ ===================== -->
+  <section>
+    <h2 class="section-title" data-en="Frequently asked questions" data-vi="Câu hỏi thường gặp">Frequently asked questions</h2>
+    <div class="faq" id="faq-en">
+      <details><summary>Is Fincal free?</summary><div class="answer">Yes. It's free and supported by ads.</div></details>
+      <details><summary>Do I need an account?</summary><div class="answer">No. There's no sign-up and no login.</div></details>
+      <details><summary>Does it work offline?</summary><div class="answer">Yes — everything runs on your device.</div></details>
+      <details><summary>Are my numbers sent anywhere?</summary><div class="answer">No. The figures you enter stay on your phone.</div></details>
+      <details><summary>Which loans can it handle?</summary><div class="answer">Equal-principal, equal-instalment and flat-rate loans, including rate changes over time and early repayments.</div></details>
+    </div>
+    <div class="faq" id="faq-vi" hidden>
+      <details><summary>Fincal có miễn phí không?</summary><div class="answer">Có. Ứng dụng miễn phí, có hiển thị quảng cáo.</div></details>
+      <details><summary>Tôi có cần tài khoản không?</summary><div class="answer">Không. Không đăng ký, không đăng nhập.</div></details>
+      <details><summary>Có chạy ngoại tuyến không?</summary><div class="answer">Có — mọi thứ chạy ngay trên thiết bị của bạn.</div></details>
+      <details><summary>Số liệu của tôi có bị gửi đi đâu không?</summary><div class="answer">Không. Các con số bạn nhập được giữ trên điện thoại.</div></details>
+      <details><summary>Tính được những loại vay nào?</summary><div class="answer">Trả gốc đều, trả góp đều và lãi phẳng, kể cả lãi suất đổi theo thời gian và trả trước hạn.</div></details>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL CTA ===================== -->
+  <section class="final-cta">
+    <h2 data-en="Smart, private finance math — right on your phone."
+        data-vi="Tính toán tài chính thông minh, riêng tư — ngay trên điện thoại.">Smart, private finance math — right on your phone.</h2>
+    <div class="cta">
+      <a class="btn btn-play" href="https://play.google.com/store/apps/details?id=com.namnoit.fincal" target="_blank" rel="noopener">
+        <span>
+          <span class="sm" data-en="GET IT ON" data-vi="TẢI TRÊN">GET IT ON</span>
+          <span class="lg">Google Play</span>
+        </span>
+      </a>
+      <span class="btn btn-appstore" role="button" aria-disabled="true" title="Coming soon">
+        <span class="badge" data-en="Coming soon" data-vi="Sắp có">Coming soon</span>
+        <span>
+          <span class="sm" data-en="DOWNLOAD ON THE" data-vi="TẢI TRÊN">DOWNLOAD ON THE</span>
+          <span class="lg">App Store</span>
+        </span>
+      </span>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <a href="privacy-policy.html" data-en="Privacy Policy" data-vi="Chính sách quyền riêng tư">Privacy Policy</a>
+  <a href="support.html" data-en="Support" data-vi="Hỗ trợ">Support</a>
+  <div style="margin-top:10px">© 2026 namnoit</div>
+</footer>
+
+<script>
+  (function () {
+    var STORAGE_KEY = "fincal_privacy_lang";
+    var buttons = document.querySelectorAll(".langbar button");
+
+    var META = {
+      en: {
+        title: "Fincal — Loan & Compound Interest Calculator",
+        desc: "Plan loans and grow savings with clear charts. Compare repayment methods, see the real interest rate, and try prepayments — fully offline and private."
+      },
+      vi: {
+        title: "Fincal — Tính lãi vay & lãi kép",
+        desc: "Lập kế hoạch vay và tích lũy với biểu đồ rõ ràng. So sánh cách trả nợ, xem lãi suất thực, thử trả trước hạn — hoàn toàn ngoại tuyến và riêng tư."
+      }
+    };
+
+    function pickDefault() {
+      try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === "en" || saved === "vi") return saved;
+      } catch (e) {}
+      var langs = navigator.languages || [navigator.language || "en"];
+      for (var i = 0; i < langs.length; i++) {
+        if ((langs[i] || "").toLowerCase().indexOf("vi") === 0) return "vi";
+      }
+      return "en";
+    }
+
+    function setMeta(name, val, attr) {
+      var el = document.querySelector('meta[' + (attr || 'name') + '="' + name + '"]');
+      if (el) el.setAttribute("content", val);
+    }
+
+    function apply(lang, persist) {
+      if (lang !== "vi") lang = "en";
+      var other = lang === "vi" ? "en" : "vi";
+      document.documentElement.lang = lang;
+
+      buttons.forEach(function (b) {
+        b.setAttribute("aria-pressed", b.getAttribute("data-lang") === lang ? "true" : "false");
+      });
+
+      // text nodes
+      document.querySelectorAll("[data-en][data-vi]").forEach(function (el) {
+        if (el.tagName === "IMG") return;
+        var t = el.getAttribute("data-" + lang);
+        if (t != null) el.textContent = t;
+      });
+
+      // localized images
+      document.querySelectorAll("img[data-en][data-vi]").forEach(function (img) {
+        var src = img.getAttribute("data-" + lang);
+        if (src && img.getAttribute("src") !== src) img.setAttribute("src", src);
+      });
+
+      // swap blocks (highlights, faq)
+      ["highlights", "faq"].forEach(function (id) {
+        var on = document.getElementById(id + "-" + lang);
+        var off = document.getElementById(id + "-" + other);
+        if (on) on.hidden = false;
+        if (off) off.hidden = true;
+      });
+
+      // meta / title
+      document.title = META[lang].title;
+      setMeta("description", META[lang].desc);
+      setMeta("og:title", META[lang].title, "property");
+      setMeta("og:description", lang === "vi"
+        ? "Tính toán tài chính thông minh, riêng tư — ngay trên điện thoại."
+        : "Smart, private finance math — right on your phone.", "property");
+
+      if (persist) { try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {} }
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener("click", function () { apply(b.getAttribute("data-lang"), true); });
+    });
+
+    apply(pickDefault(), false);
+  })();
+</script>
+</body>
+</html>
