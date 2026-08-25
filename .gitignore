@@ -1,0 +1,17 @@
+# Trang này chỉ gồm index.html, hai trang phụ, icon và release/{en,vi}/S*.jpg.
+# Mọi thứ dưới đây là bản sao cũ kéo sang từ FincalKMP (nguồn thật nằm ở repo đó),
+# giữ lại trên đĩa cho tiện tra cứu nhưng không thuộc về repo Pages.
+.DS_Store
+.idea/
+
+landing-content.md
+privacy.md
+release/screenshots.md
+release/*.py
+
+# Bộ ảnh tablet và ảnh store — trang web không dùng ảnh nào trong đây.
+release/store/
+release/tablet-en/
+release/tablet-vi/
+release/tablet7-en/
+release/tablet7-vi/
